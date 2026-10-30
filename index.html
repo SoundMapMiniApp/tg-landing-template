@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Название товара</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+/* ============ НАСТРОЙКИ: заполните своими данными ============ */
+/* Все тексты — в блоке CONFIG внизу страницы (в <script>) */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--main:#1565c0;--dark:#1a237e;--accent:#e53935;--bg:#f6f7fb;--text:#1a1a2e;--muted:#667}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;-webkit-text-size-adjust:100%}
+.wrap{max-width:480px;margin:0 auto;padding:0 16px}
+.hero{background:linear-gradient(135deg,var(--dark),var(--main));color:#fff;padding:28px 0 32px;text-align:center}
+.hero h1{font-size:1.5rem;line-height:1.25;margin-bottom:10px}
+.hero p{opacity:.9;font-size:.95rem}
+.badge{display:inline-block;background:#ffffff26;border:1px solid #ffffff55;border-radius:999px;padding:4px 12px;font-size:.72rem;margin-bottom:12px}
+section{padding:22px 0}
+h2{font-size:1.15rem;margin-bottom:12px}
+.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 10px #0000000d}
+.list{display:grid;gap:10px}
+.item{display:flex;gap:12px;align-items:flex-start}
+.ico{flex:0 0 36px;height:36px;border-radius:50%;background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.item h3{font-size:.95rem;margin-bottom:2px}
+.item p{font-size:.85rem;color:var(--muted)}
+.steps{counter-reset:s;display:grid;gap:10px}
+.steps .item::before{counter-increment:s;content:counter(s);flex:0 0 32px;height:32px;border-radius:50%;background:var(--main);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.price{font-size:1.6rem;font-weight:800}
+.note{font-size:.8rem;color:var(--muted)}
+.cta{display:block;width:100%;border:0;border-radius:999px;background:linear-gradient(135deg,var(--accent),#c62828);color:#fff;font-size:1rem;font-weight:800;padding:16px;margin-top:14px;cursor:pointer;box-shadow:0 8px 24px #e5393555}
+.cta.ghost{background:#fff;color:var(--text);box-shadow:none;border:1px solid #d5d8e2;font-weight:600;font-size:.9rem;padding:12px}
+.redirect{background:#fff8e1;border:1px solid #ffe082;border-radius:14px;padding:14px 16px;text-align:center}
+.redirect b{font-size:1.1rem}
+.bar{height:6px;border-radius:3px;background:#ffe082;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:var(--accent);transform-origin:left;transition:transform linear}
+footer{padding:20px 0 40px;font-size:.75rem;color:#8a8fa3;text-align:center}
+footer b{color:#5b6074}
+.hidden{display:none}
+.ov{position:fixed;inset:0;background:rgba(10,12,30,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+.ov.show{opacity:1;pointer-events:auto}
+.pop{position:relative;width:100%;max-width:340px;background:#fff;border-radius:24px;padding:30px 22px 22px;text-align:center;overflow:hidden;transform:translateY(30px) scale(.92);transition:transform .45s cubic-bezier(.34,1.56,.64,1);box-shadow:0 30px 80px #0006}
+.ov.show .pop{transform:none}
+.pop::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:linear-gradient(90deg,var(--main),var(--accent),var(--main));background-size:200%;animation:sh 3s linear infinite}
+@keyframes sh{to{background-position:200%}}
+.pop .emoji{font-size:3rem;display:block;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px) rotate(6deg)}}
+.pop .pt{font-size:1.35rem;font-weight:800;line-height:1.25;margin:10px 0 8px}
+.pop .pd{font-size:.9rem;color:var(--muted);margin-bottom:6px}
+.pop .cta{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 8px 24px #e5393555,0 0 0 12px #e5393500}}
+.pop .x{position:absolute;right:10px;top:14px;width:32px;height:32px;border:0;background:#f0f1f6;border-radius:50%;font-size:1rem;color:#667;cursor:pointer}
+.pop .later{display:block;margin:12px auto 0;border:0;background:none;color:#8a8fa3;font-size:.8rem;cursor:pointer;text-decoration:underline}
+
+</style>
+</head>
+<body>
+
+<div class="hero"><div class="wrap">
+  <div class="badge" id="badge"></div>
+  <h1 id="title"></h1>
+  <p id="lead"></p>
+</div></div>
+
+<div class="wrap">
+
+  <section>
+    <h2>О товаре</h2>
+    <div class="card"><div class="list" id="about"></div></div>
+  </section>
+
+  <section>
+    <h2>Как оформить заказ</h2>
+    <div class="steps card" id="steps"></div>
+  </section>
+
+  <section>
+    <h2>Цена и условия</h2>
+    <div class="card">
+      <div class="price" id="price"></div>
+      <p class="note" id="priceNote" style="margin-top:6px"></p>
+      <button class="cta" id="cta"></button>
+    </div>
+  </section>
+
+  <section id="importantSec">
+    <h2>Важно знать</h2>
+    <div class="card note" id="important"></div>
+  </section>
+
+  <footer id="seller"></footer>
+</div>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true">
+  <div class="pop">
+    <button class="x" id="popX" aria-label="Закрыть">✕</button>
+    <span class="emoji" id="popEmoji"></span>
+    <div class="pt" id="popTitle"></div>
+    <div class="pd" id="popText"></div>
+    <button class="cta" id="popBtn"></button>
+    <button class="later" id="popLater"></button>
+  </div>
+</div>
+
+<script>
+/* ===================================================================
+   CONFIG — замените на настоящие сведения о вашем товаре и продавце.
+   Пишите только то, что можете подтвердить документами.
+   =================================================================== */
+const CONFIG = {
+  url: 'https://example.com/',     // куда ведёт кнопка
+
+  popup: {
+    enabled: true,
+    delaySec: 5,                   // через сколько секунд всплывает окно
+    showOnce: true,                // показывать один раз за сессию
+    emoji: '🎁',
+    title: 'Получите пробник бесплатно!',   // ваш текст
+    text: 'Условия акции: указывайте только настоящие — срок, количество, ограничения.',
+    button: 'Получить бесплатно',
+    later: 'Не сейчас'
+  },
+
+  badge: 'Информация о товаре',
+  title: 'Название товара',
+  lead:  'Одно-два предложения: что это за товар и для кого он.',
+
+  about: [   // [иконка, заголовок, описание] — только проверяемые факты
+    ['📦', 'Что входит в комплект', 'Состав / комплектация, объём, срок годности.'],
+    ['🏭', 'Производитель', 'Название компании, страна производства.'],
+    ['📄', 'Документы', 'Номер сертификата / декларации соответствия (если есть).'],
+    ['🚚', 'Доставка', 'Способы, сроки и стоимость доставки.']
+  ],
+
+  steps: [
+    'Нажмите кнопку «Перейти к оформлению».',
+    'Выберите товар и укажите данные для доставки на сайте продавца.',
+    'Оплатите заказ удобным способом и дождитесь доставки.'
+  ],
+
+  price: '0 ₽',                    // реальная цена
+  priceNote: 'Условия акции, сроки действия и ограничения — на сайте продавца. Указывайте только действующие условия.',
+  cta: 'Перейти к оформлению',
+
+  important: 'Укажите противопоказания, условия возврата и обмена. Если товар — БАД или косметика: «Не является лекарственным средством. Перед применением проконсультируйтесь со специалистом».',
+
+  seller: 'Продавец: ООО/ИП «Название», ИНН ______, ОГРН ______<br>Контакты: телефон, e-mail, адрес'
+};
+
+/* ============================ логика ============================ */
+const $ = id => document.getElementById(id);
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+$('badge').textContent = CONFIG.badge;
+$('title').textContent = CONFIG.title;
+document.title = CONFIG.title;
+$('lead').textContent = CONFIG.lead;
+$('price').textContent = CONFIG.price;
+$('priceNote').textContent = CONFIG.priceNote;
+$('cta').textContent = CONFIG.cta;
+$('important').textContent = CONFIG.important;
+$('seller').innerHTML = '<b>' + CONFIG.seller.replace('<br>', '</b><br>');
+$('about').innerHTML = CONFIG.about.map(([i, h, p]) =>
+  `<div class="item"><div class="ico">${i}</div><div><h3>${h}</h3><p>${p}</p></div></div>`).join('');
+$('steps').innerHTML = CONFIG.steps.map(s => `<div class="item"><div><p>${s}</p></div></div>`).join('');
+
+function openOffer() {
+  /* вызывается только по нажатию кнопки — так требует Telegram */
+  if (tg && tg.openLink) tg.openLink(CONFIG.url);
+  else window.open(CONFIG.url, '_blank');
+}
+$('cta').addEventListener('click', openOffer);
+
+const P = CONFIG.popup;
+function closePopup(){ $('ov').classList.remove('show'); }
+function openPopup(){
+  $('ov').classList.add('show');
+  if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.notificationOccurred('success'); } catch(e){} }
+  try { sessionStorage.setItem('popupShown', '1'); } catch(e){}
+}
+if (P.enabled) {
+  $('popEmoji').textContent = P.emoji;
+  $('popTitle').textContent = P.title;
+  $('popText').textContent = P.text;
+  $('popBtn').textContent = P.button;
+  $('popLater').textContent = P.later;
+  $('popBtn').addEventListener('click', () => { closePopup(); openOffer(); });
+  $('popX').addEventListener('click', closePopup);
+  $('popLater').addEventListener('click', closePopup);
+  $('ov').addEventListener('click', e => { if (e.target.id === 'ov') closePopup(); });
+  let shown = false;
+  try { shown = P.showOnce && sessionStorage.getItem('popupShown') === '1'; } catch(e){}
+  if (!shown) setTimeout(openPopup, P.delaySec * 1000);
+}
+</script>
+</body>
+</html>
